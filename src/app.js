@@ -1,30 +1,31 @@
 import express from 'express';
+import connectNaDatabase from './config/dbConnect.js';
+import livro from './models/livro.js';
+
+
+const conexao = await connectNaDatabase();
+
+conexao.on("error", (erro)=>{
+    console.error("erro de conexão", erro);
+})
+
+conexao.once("open",()=>{
+    console.log("conexão com o banco feita com sucesso");
+} )
 
 const app = express();
 app.use(express.json()); //midleware 
 
-const livros = [
-    {
-        id: 1,
-        titulo: "O Senhor dos Anéis"
-    },
-    {
-        id: 2,
-        titulo: "It A Coisa"
-    }
-]
-function buscaLivro(id){
-    return livros.findIndex(livros => {
-        return livros.id === Number(id);
-    });
-}
+
+
 //o metodo get espera sempre 2 parametros , uma string e uma funçaõ callback
 app.get("/", (req, res) => {
     res.status(200).send("Estudando Node.js");
 });
 
-app.get("/livros", (req, res)=>{
-    res.status(200).json(livros);
+app.get("/livros", async (req, res)=>{
+    const listaLivros = await livro.find({});
+    res.status(200).json(listaLivros);
 });
 
 //busca livros por id 
@@ -52,3 +53,4 @@ app.delete("/livros/:id", (req, res) => {
 
 
 export default app;
+
